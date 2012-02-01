@@ -140,7 +140,7 @@ You can use various tags within the body-field:
 * {{heading}} - _the main heading_
 * {{image:id}} - _displays an attached image_
 * {{node:name}} - _displays an inline node
-* {{file:id}} - _creates a link to an attached file_
+* {{file:id}} or {{file:id:Custom link name}} - _creates a link to an attached file_
 * {{email:address}} - _creates a mailto link_
 * {{name|text}} - _creates an internal link_
 * {{address|text}} - _creates an external link_

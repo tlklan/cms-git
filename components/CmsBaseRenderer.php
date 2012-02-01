@@ -13,7 +13,7 @@
 class CmsBaseRenderer extends CComponent
 {
 	protected $_patterns = array(
-		'file'=>'/{{file:([\d]+)}}/i',
+		'file'=>'/{{file:([\d]+)(:[^}]+)?}}/i',
 		'image'=>'/{{image:([\d]+)}}/i',
 		'link'=>'/{{(#?[\w\d\._-]+|https?:\/\/[\w\d_-]*(\.[\w\d_-]*)+.*)\|([\w\d\s-]+)}}/i',
 		'email'=>'/{{email:([\w\d!#$%&\'*+\\/=?^_`{|}~-]+(?:\.[\w\d!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[\w\d](?:[\w\d-]*[\w\d])?\.)+[\w\d](?:[\w\d-]*[\w\d])?)}}/i',
@@ -227,7 +227,17 @@ class CmsBaseRenderer extends CComponent
 			if ($attachment instanceof CmsAttachment)
 			{
 				$url = $attachment->getUrl();
-				$name = $attachment->resolveName();
+				
+				// Use custom name if specified. The first letter must be trimmed
+				if (!empty($matches[2][$index]))
+				{
+					// TODO: fix 'file' pattern so the colon isn't included
+					$name = $matches[2][$index];
+					$name = substr($name, 1, strlen($name) - 1);
+				}
+				else
+					$name = $attachment->resolveName();
+				
 				$attachments[$index] = CHtml::link($name, $url);
 			}
 		}
