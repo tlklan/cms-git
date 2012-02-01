@@ -233,7 +233,7 @@ class CmsBaseRenderer extends CComponent
 				{
 					// TODO: fix 'file' pattern so the colon isn't included
 					$name = $matches[2][$index];
-					$name = substr($name, 1, strlen($name) - 1);
+					$name = substr($name, 1);
 				}
 				else
 					$name = $attachment->resolveName();
