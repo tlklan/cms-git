@@ -64,6 +64,10 @@ class Cms extends CApplicationComponent
 	 */
 	public $renderer = array('class'=>'cms.components.CmsBaseRenderer');
 	/**
+	// todo: do something about the flash message categories, an array maybe instead of 4 properties?
+	 */
+	public $renderer = array('class'=>'cms.components.CmsBaseRenderer');
+	/**
 	 * @var boolean indicates whether to auto create nodes when they are requested.
 	 * Defaults to true.
 	 */
@@ -88,13 +92,13 @@ class Cms extends CApplicationComponent
     {
         parent::init();
 
-		$this->flashes = CMap::mergeArray($this->_flashCategories, $this->flashes);
+	$this->flashes = CMap::mergeArray($this->_flashCategories, $this->flashes);
 
-		// Create the renderer.
-		$this->renderer = Yii::createComponent($this->renderer);
+	// Create the renderer.
+	$this->renderer = Yii::createComponent($this->renderer);
 
-		// Register the assets.
-		$assetsUrl = $this->getAssetsUrl();
+	// Register the assets.
+	$assetsUrl = $this->getAssetsUrl();
         Yii::app()->clientScript->registerCssFile($assetsUrl.'/css/cms.css');
         Yii::app()->clientScript->registerScriptFile($assetsUrl.'/js/es5-shim.js');
     }
@@ -140,13 +144,6 @@ class Cms extends CApplicationComponent
 	public function loadNode($name)
 	{
 		$node = CmsNode::model()->findByAttributes(array('name'=>$name));
-
-		if ($node === null)
-		{
-			$this->createNode($name);
-			$node = $this->loadNode($name);
-		}
-
 		return $node;
 	}
 
@@ -201,6 +198,20 @@ class Cms extends CApplicationComponent
 		return $node->save(false);
 	}
 
+	/**
+	 * Returns whether a child node of a specific page is active.
+	 * @param CmsNode $node the node
+	 * @return boolean the result
+	 */
+	protected function isChildActive($node)
+	{
+		foreach ($node->children as $child)
+			if ($this->isActive($child->name) || $this->isChildActive($child))
+				return true;
+
+		return false;
+	}
+	
 	/**
 	 * Returns whether the currently logged in user has access to update cms content.
 	 * Override this method to implement your own access control.

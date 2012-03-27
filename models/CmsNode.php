@@ -314,6 +314,15 @@ class CmsNode extends CmsActiveRecord
 
 		if ($this->parent !== null)
 			$breadcrumbs = $this->parent->getBreadcrumbs(true); // get the parent as a link
+		else
+		{
+			// Do not include the module breadcrumbs for pages.
+			if (Yii::app()->controller->route !== 'cms/node/page')
+			{
+				$breadcrumbs[Yii::t('CmsModule.core','Cms')] = array('admin/index');
+				$breadcrumbs[Yii::t('CmsModule.core','Nodes')] = array('node/index');
+			}
+		}
 
 		if ($this->content !== null && !empty($this->content->breadcrumb))
 			$text = $this->content->breadcrumb;
@@ -414,6 +423,29 @@ class CmsNode extends CmsActiveRecord
 	        $pageTitle = ucfirst($this->name);
 
 		return $pageTitle;
+	}
+
+	/**
+	 * Renders this node.
+	 * @return string the rendered node
+	 */
+	public function render()
+	{
+		return Yii::app()->cms->renderer->render($this);
+	}
+
+	/**
+	 * Renders this node as a widget.
+	 * @return string the rendered widget
+	 */
+	public function renderWidget()
+	{
+		return Yii::app()->cms->renderer->renderWidget($this);
+	}
+
+	public function getPublished()
+	{
+		return (bool) $this->published;
 	}
 
 	/**
