@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS `cms_node` (
   `updated` timestamp NULL DEFAULT NULL,
   `parentId` int(10) NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL,
-  `deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `level` varchar(255) NOT NULL DEFAULT 'page',
+  `published` tinyint(1) NOT NULL DEFAULT '0',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `name_deleted` (`name`,`deleted`)
   UNIQUE INDEX `name` (`name`)
@@ -54,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `cms_menu` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `cms_menu_item` (
+CREATE TABLE IF NOT EXISTS `cms_link` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `menuId` int(10) unsigned NOT NULL,
   `label` varchar(255) NOT NULL,

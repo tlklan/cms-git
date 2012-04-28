@@ -40,6 +40,10 @@ class Cms extends CApplicationComponent
 	 */
 	public $attachmentPath = '/files/cms/attachments/';
 	/**
+	 * @var array the flash message categories.
+	 */
+	public $flashes = array();
+	/**
 	 * @var string the template to use for node headings.
 	 */
 	public $headingTemplate = '<h1 class="heading">{heading}</h1>';
@@ -60,28 +64,22 @@ class Cms extends CApplicationComponent
 	 */
 	public $renderer = array('class'=>'cms.components.CmsBaseRenderer');
 	/**
+	 * @var boolean indicates whether to auto create nodes when they are requested.
+	 * Defaults to true.
+	 */
+	public $autoCreate = true;
+	/**
 	 * @var array the HTML purifier options.
 	 */
 	public $htmlPurifierOptions = array();
-	// todo: do something about the flash message categories, an array maybe instead of 4 properties?
-	/**
-	 * @var string the flash message error category.
-	 */
-	public $flashError = 'error';
-	/**
-	 * @var string the flash message info category.
-	 */
-	public $flashInfo = 'info';
-	/**
-	 * @var string the flash message success category.
-	 */
-	public $flashSuccess = 'success';
-	/**
-	 * @var string the flash message warning category.
-	 */
-	public $flashWarning = 'warning';
 
     protected $_assetsUrl;
+	protected $_flashCategories = array(
+		'error'=>'error',
+		'info'=>'info',
+		'success'=>'success',
+		'warning'=>'warning',
+	);
 
     /**
      * Initializes the component.
@@ -90,13 +88,15 @@ class Cms extends CApplicationComponent
     {
         parent::init();
 
-		// Create the renderer.
-		$this->renderer = Yii::createComponent($this->renderer);
+	$this->flashes = CMap::mergeArray($this->_flashCategories, $this->flashes);
 
-		// Register the assets.
-		$assetsUrl = $this->getAssetsUrl();
+	// Create the renderer.
+	$this->renderer = Yii::createComponent($this->renderer);
+
+	// Register the assets.
+	$assetsUrl = $this->getAssetsUrl();
         Yii::app()->clientScript->registerCssFile($assetsUrl.'/css/cms.css');
-        Yii::app()->clientScript->registerScriptFile($assetsUrl.'/js/es5-shim.min.js');
+        Yii::app()->clientScript->registerScriptFile($assetsUrl.'/js/es5-shim.js');
     }
 
     /**
@@ -129,13 +129,6 @@ class Cms extends CApplicationComponent
 	public function createUrl($name, $params=array())
 	{
 		$node = $this->loadNode($name);
-
-		if ($node === null)
-		{
-			$this->createNode($name);
-			$node = $this->loadNode($name);
-		}
-
 		return $node->getUrl($params);
 	}
 
@@ -146,40 +139,61 @@ class Cms extends CApplicationComponent
 	 */
 	public function loadNode($name)
 	{
-		return CmsNode::model()->findByAttributes(array('name'=>$name));
-	}
-
-	/**
-	 * Creates a new node model.
-	 * @param string $name the node name
-	 */
-	public function createNode($name)
-	{
-        // Validate the node name before creation.
-        if (preg_match('/^[\w\d\._-]+$/i', $name) === 0)
-            throw new CException(__CLASS__.': Failed to create node. Name "'.$name.'" is invalid.');
-
-		$node = new CmsNode();
-		$node->name = $name;
-		$node->save(false);
+		$node = CmsNode::model()->findByAttributes(array('name'=>$name));
+		return $node;
 	}
 
 	/**
 	 * Returns whether a specific page is active.
-	 * @param $name the content name
-	 * @return boolean
+	 * @param string $name the content name
+	 * @return boolean the result
 	 */
 	public function isActive($name)
 	{
 		$node = $this->loadNode($name);
 		$controller = Yii::app()->getController();
-		return $controller->module !== null
+		return ($controller->module !== null
 				&& $controller->module->id === 'cms'
 				&& $controller->id === 'node'
 				&& $controller->action->id === 'page'
-				&& isset($_GET['id']) && $_GET['id'] === $node->id;
+				&& isset($_GET['id']) && $_GET['id'] === $node->id)
+				|| $this->isChildActive($node);
 	}
 
+	/**
+	 * Returns whether a child node of a specific page is active.
+	 * @param CmsNode $node the node
+	 * @return boolean the result
+	 */
+	protected function isChildActive($node)
+	{
+		foreach ($node->children as $child)
+			if ($this->isActive($child->name) || $this->isChildActive($child))
+				return true;
+
+		return false;
+	}
+
+	/**
+	 * Creates a new node model.
+	 * @param string $name the node name
+	 * @return boolean whether the node was created
+	 * @throws CException if the node could not be created
+	 */
+	protected function createNode($name)
+	{
+		if (!$this->autoCreate)
+			throw new CException(__CLASS__.': Failed to create node. Node creation is disabled.');
+
+		// Validate the node name before creation.
+		if (preg_match('/^[\w\d\._-]+$/i', $name) === 0)
+			throw new CException(__CLASS__.': Failed to create node. Name "'.$name.'" is invalid.');
+
+		$node = new CmsNode();
+		$node->name = $name;
+		return $node->save(false);
+	}
+	
 	/**
 	 * Returns whether the currently logged in user has access to update cms content.
 	 * Override this method to implement your own access control.

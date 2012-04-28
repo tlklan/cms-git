@@ -17,7 +17,7 @@ class NodeController extends CmsController
 	/**
 	 * @property string the name of the default action
 	 */
-	public $defaultAction = 'view';
+	public $defaultAction = 'index';
 
 	/**
 	 * @return array the action filters for this controller.
@@ -34,7 +34,6 @@ class NodeController extends CmsController
 	 */
 	public function actionCreate()
 	{
-		$cms = Yii::app()->cms;
 		$model = new CmsNode();
 
 		if (isset($_POST['CmsNode']))
@@ -43,7 +42,7 @@ class NodeController extends CmsController
 
 			if ($model->save())
 			{
-				Yii::app()->user->setFlash($cms->flashSuccess, Yii::t('CmsModule.core', 'Node created.'));
+				Yii::app()->user->setFlash(Yii::app()->cms->flashes['success'], Yii::t('CmsModule.core', 'Node created.'));
 				$this->redirect(array('update', 'id'=>$model->id));
 			}
 		}
@@ -73,7 +72,7 @@ class NodeController extends CmsController
 			$translations[$language] = $content;
 		}
 
-		if (isset($_POST['CmsNode']) && isset($_POST['CmsContent']))
+		if (isset($_POST['CmsNode'], $_POST['CmsContent']))
 		{
 			$valid = true;
 			foreach ($translations as $language => $content)
@@ -96,7 +95,7 @@ class NodeController extends CmsController
 				foreach ($translations as $content)
 					$content->save();
 
-				Yii::app()->user->setFlash($cms->flashSuccess, Yii::t('CmsModule.core', 'Node updated.'));
+				Yii::app()->user->setFlash($cms->flashes['success'], Yii::t('CmsModule.core', 'Node updated.'));
 				$this->redirect(array('update', 'id'=>$id));
 			}
 		}
@@ -109,16 +108,13 @@ class NodeController extends CmsController
 
 	public function actionIndex()
 	{
-		$nodeDp = new CActiveDataProvider('CmsNode', array(
-			'criteria'=>array(
-				'order'=>'parentId ASC, id ASC',
-			),
-		));
+		$model = new CmsNode('search');
+		$model->unsetAttributes();  // clear any default values
 
 		$this->layout = 'cms-column1';
 
 		$this->render('index', array(
-			'nodeDp'=>$nodeDp,
+			'model'=>$model,
 		));
 	}
 
@@ -131,7 +127,7 @@ class NodeController extends CmsController
 	{
 		// we only allow deletion via POST request
 		$this->loadModel($id)->delete();
-		Yii::app()->user->setFlash(Yii::app()->cms->flashSuccess, Yii::t('CmsModule.core', 'Node deleted.'));
+		Yii::app()->user->setFlash(Yii::app()->cms->flashes['success'], Yii::t('CmsModule.core', 'Node deleted.'));
 
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 		if (!isset($_GET['ajax']))
@@ -176,25 +172,23 @@ class NodeController extends CmsController
 
 	/**
 	 * Deletes an attachment with the given id.
-	 * @param $id the attachment id
+	 * @param integer $id the attachment id
 	 * @throws CHttpException if the request is not a POST-request
 	 */
 	public function actionDeleteAttachment($id)
 	{
 		if (Yii::app()->request->isPostRequest)
 		{
-			var_dump(CmsAttachment::model()->findByPk($id));
-
 			// we only allow deletion via POST request
 			CmsAttachment::model()->findByPk($id)->delete();
-			Yii::app()->user->setFlash(Yii::app()->cms->flashSuccess, Yii::t('CmsModule.core', 'Attachment deleted.'));
+			Yii::app()->user->setFlash(Yii::app()->cms->flashes['success'], Yii::t('CmsModule.core', 'Attachment deleted.'));
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if (!isset($_GET['ajax']))
 				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
 		}
 		else
-			throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+			throw new CHttpException(400, Yii::t('CmsModule.core', 'Invalid request. Please do not repeat this request again.'));
 	}
 
 	/**
@@ -202,20 +196,21 @@ class NodeController extends CmsController
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 * @return CmsNode the model
+	 * @throws CHttpException if the node does not exist.
 	 */
 	public function loadModel($id)
 	{
-		$model = CmsNode::model()->findByPk($id, 'deleted=0');
+		$model = CmsNode::model()->findByPk($id);
 
 		if ($model === null)
-			throw new CHttpException(404, 'The requested page does not exist.');
+			throw new CHttpException(404, Yii::t('CmsModule.core', 'The requested page does not exist.'));
 
 		return $model;
 	}
 
 	/**
 	 * Performs the AJAX validation.
-	 * @param CModel the model to be validated
+	 * @param CModel $model the model to be validated
 	 */
 	protected function performAjaxValidation($model)
 	{

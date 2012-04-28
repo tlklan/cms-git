@@ -13,11 +13,12 @@
 class CmsBaseRenderer extends CComponent
 {
 	protected $_patterns = array(
+		'email'=>'/{{email:([\w\d!#$%&\'*+\\/=?^_`{|}~-]+(?:\.[\w\d!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[\w\d](?:[\w\d-]*[\w\d])?\.)+[\w\d](?:[\w\d-]*[\w\d])?)}}/i',
 		'file'=>'/{{file:([\d]+)(:[^}]+)?}}/i',
 		'image'=>'/{{image:([\d]+)}}/i',
 		'link'=>'/{{(#?[\w\d\._-]+|https?:\/\/[\w\d_-]*(\.[\w\d_-]*)+.*)\|([\w\d\s-]+)}}/i',
-		'email'=>'/{{email:([\w\d!#$%&\'*+\\/=?^_`{|}~-]+(?:\.[\w\d!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[\w\d](?:[\w\d-]*[\w\d])?\.)+[\w\d](?:[\w\d-]*[\w\d])?)}}/i',
 		'node'=>'/{{node:([\w\d\._-]+)}}/i',
+		'url'=>'/{{url:([\w\d\._-]+)}}/i',
 	);
 
 	/**
@@ -29,12 +30,12 @@ class CmsBaseRenderer extends CComponent
 	{
 		$heading = str_replace('{heading}', $node->heading, Yii::app()->cms->headingTemplate);
 		$content = $this->renderHeading($heading, $node->body);
+		$content = $this->renderURLs($content);
 		$content = $this->renderLinks($content);
 		$content = $this->renderEmails($content);
 		$content = $this->renderImages($content);
 		$content = $this->renderAttachments($content);
 		$content = $this->renderNodes($content);
-
 		return $content;
 	}
 
@@ -47,12 +48,12 @@ class CmsBaseRenderer extends CComponent
 	{
 		$heading = str_replace('{heading}', $node->heading, Yii::app()->cms->widgetHeadingTemplate);
 		$content = $this->renderHeading($heading, $node->body);
+		$content = $this->renderURLs($content);
 		$content = $this->renderLinks($content);
 		$content = $this->renderEmails($content);
 		$content = $this->renderImages($content);
 		$content = $this->renderAttachments($content);
 		$content = $this->removeNodes($content); // widgets do not render inline nodes
-
 		return $content;
 	}
 
@@ -77,17 +78,17 @@ class CmsBaseRenderer extends CComponent
 		$matches = array();
 		preg_match_all($this->_patterns['node'], $content, $matches);
 
-		$nodes = array();
+		$pairs = array();
 		foreach ($matches[1] as $index => $name)
 		{
 			/** @var CmsNode $node */
 			$node = Yii::app()->cms->loadNode($name);
-			if ($node instanceof CmsNode)
-				$nodes[$index] = $node->renderWidget();
+			$pairs[$matches[0][$index]] = $node instanceof CmsNode && $node->level === CmsNode::LEVEL_BLOCK
+					? $node->renderWidget() : '';
 		}
 
-		if (!empty($nodes))
-			$content = strtr($content, array_combine($matches[0], $nodes));
+		if (!empty($pairs))
+			$content = strtr($content, $pairs);
 
 		return $content;
 	}
@@ -102,7 +103,7 @@ class CmsBaseRenderer extends CComponent
 		$matches = array();
 		preg_match_all($this->_patterns['link'], $content, $matches);
 
-		$links = array();
+		$pairs = array();
 		foreach ($matches[1] as $index => $target)
 		{
 			// If the target doesn't include 'http' it's treated as an internal link.
@@ -113,21 +114,48 @@ class CmsBaseRenderer extends CComponent
 
 				/** @var CmsNode $node */
 				$node = $cms->loadNode($target);
-				if (!$node instanceof CmsNode)
-				{
-					$cms->createNode($target);
-					$node = $cms->loadNode($target);
-				}
-
-				$target = $node->getUrl();
+				$target = $node instanceof CmsNode ? $node->getUrl() : '#';
 			}
 
 			$text = $matches[3][$index];
-			$links[$index] = CHtml::link($text, $target);
+			$pairs[$matches[0][$index]] = CHtml::link($text, $target);
 		}
 
-		if (!empty($links))
-			$content = strtr($content, array_combine($matches[0], $links));
+		if (!empty($pairs))
+			$content = strtr($content, $pairs);
+
+		return $content;
+	}
+
+	/**
+	 * Renders URLS within the given content.
+	 * @param string $content the content being rendered
+	 * @return string the content
+	 */
+	protected function renderURLs($content)
+	{
+		$matches = array();
+		preg_match_all($this->_patterns['url'], $content, $matches);
+
+		$pairs = array();
+		foreach ($matches[1] as $index => $target)
+		{
+			// If the target doesn't include 'http' it's treated as an internal link.
+			if (strpos($target, '#') !== 0 && strpos($target, 'http') === false)
+			{
+				/** @var Cms $cms */
+				$cms = Yii::app()->cms;
+
+				/** @var CmsNode $node */
+				$node = $cms->loadNode($target);
+				$target = $node !== null ? $node->getUrl() : '#';
+			}
+
+			$pairs[$matches[0][$index]] = $target;
+		}
+
+		if (!empty($pairs))
+			$content = strtr($content, $pairs);
 
 		return $content;
 	}
@@ -142,16 +170,16 @@ class CmsBaseRenderer extends CComponent
 		$matches = array();
 		preg_match_all($this->_patterns['email'], $content, $matches);
 
-		$mails = array();
+		$pairs = array();
 		foreach ($matches[1] as $index => $id)
 		{
 			$email = str_rot13($matches[1][$index]);
-			$mails[$index] = CHtml::mailto($email, $email, array('class'=>'email', 'rel'=>'nofollow'));
+			$pairs[$matches[0][$index]] = CHtml::mailto($email, $email, array('class'=>'email', 'rel'=>'nofollow'));
 		}
 
-		if (!empty($mails))
+		if (!empty($pairs))
 		{
-			$content = strtr($content, array_combine($matches[0], $mails));
+			$content = strtr($content, $pairs);
 
 			/** @var CClientScript $cs */
 			$cs = Yii::app()->getClientScript();
@@ -190,7 +218,7 @@ class CmsBaseRenderer extends CComponent
 		$matches = array();
 		preg_match_all($this->_patterns['image'], $content, $matches);
 
-		$images = array();
+		$pairs = array();
 		foreach ($matches[1] as $index => $id)
 		{
 			/** @var CmsAttachment $attachment */
@@ -199,12 +227,13 @@ class CmsBaseRenderer extends CComponent
 			{
 				$url = $attachment->getUrl();
 				$name = $attachment->resolveName();
-				$images[$index] = CHtml::image($url, $name);
+				$pairs[$matches[0][$index]] = CHtml::image($url, $name);
+
 			}
 		}
 
-		if (!empty($images))
-			$content = strtr($content, array_combine($matches[0], $images));
+		if (!empty($pairs) )
+			$content = strtr($content, $pairs);
 
 		return $content;
 	}
@@ -219,7 +248,7 @@ class CmsBaseRenderer extends CComponent
 		$matches = array();
 		preg_match_all($this->_patterns['file'], $content, $matches);
 
-		$attachments = array();
+		$pairs = array();
 		foreach ($matches[1] as $index => $id)
 		{
 			/** @var CmsAttachment $attachment */
@@ -227,23 +256,13 @@ class CmsBaseRenderer extends CComponent
 			if ($attachment instanceof CmsAttachment)
 			{
 				$url = $attachment->getUrl();
-				
-				// Use custom name if specified. The first letter must be trimmed
-				if (!empty($matches[2][$index]))
-				{
-					// TODO: fix 'file' pattern so the colon isn't included
-					$name = $matches[2][$index];
-					$name = substr($name, 1);
-				}
-				else
-					$name = $attachment->resolveName();
-				
-				$attachments[$index] = CHtml::link($name, $url);
+				$name = $attachment->resolveName();
+				$pairs[$matches[0][$index]] = CHtml::link($name, $url);
 			}
 		}
 
-		if (!empty($attachments))
-			$content = strtr($content, array_combine($matches[0], $attachments));
+		if (!empty($pairs))
+			$content = strtr($content, $pairs);
 
 		return $content;
 	}
