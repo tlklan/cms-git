@@ -30,9 +30,9 @@
 				'form'=>$form,
 				'node'=>$model,
 				'language'=>$language,
-			), true));
+			), true), 'active'=>$locale == Yii::app()->language);
 		} ?>
-
+		
 		<?php $this->widget('bootstrap.widgets.BootTabbable',array(
 			'tabs'=>$tabs,
 		)); ?>
