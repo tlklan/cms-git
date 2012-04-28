@@ -180,7 +180,7 @@ class Cms extends CApplicationComponent
 	 * @return boolean whether the node was created
 	 * @throws CException if the node could not be created
 	 */
-	protected function createNode($name)
+	public function createNode($name)
 	{
 		if (!$this->autoCreate)
 			throw new CException(__CLASS__.': Failed to create node. Node creation is disabled.');
