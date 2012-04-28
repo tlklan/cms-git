@@ -121,7 +121,8 @@ class Cms extends CApplicationComponent
     }
 
 	/**
-	 * Creates the URL to a content page.
+	 * Creates the URL to a content page. If the page node doesn't exist it 
+	 * will be created (providing autoCreate is set to true)
 	 * @param string $name the content name
 	 * @param array $params additional parameters
 	 * @return string the URL
@@ -129,6 +130,18 @@ class Cms extends CApplicationComponent
 	public function createUrl($name, $params=array())
 	{
 		$node = $this->loadNode($name);
+		if($node === null)
+		{
+			if( $this->autoCreate)
+			{
+				$this->createNode($name);
+				$node = $this->loadNode($name);
+				
+				return $node->getUrl($params);
+			}
+			return '';
+		}
+		
 		return $node->getUrl($params);
 	}
 
