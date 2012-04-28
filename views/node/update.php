@@ -1,64 +1,48 @@
-<?php $this->breadcrumbs = CMap::mergeArray($model->getBreadcrumbs(true), array(
-	Yii::t('CmsModule.core','Update'))
+<?php $this->breadcrumbs = array(
+	Yii::t('CmsModule.core', 'Cms')=>array('/cms'),
+	Yii::t('CmsModule.core', 'Nodes')=>array('/cms/node'),
+	ucfirst($model->name),
 ) ?>
 
-<div class="node-update form">
+<div class="node-update">
 
-	<h1><?php echo Yii::t('CmsModule.core','Update :name',array(':name'=>ucfirst($model->name))) ?></h1>
+    <h1><?php echo Yii::t('CmsModule.core','Update :name',array(':name'=>ucfirst($model->name))) ?></h1>
 
-	<?php $form=$this->beginWidget('CActiveForm', array(
+	<?php $form = $this->beginWidget('BootActiveForm',array(
 		'id'=>'cmsUpdateNodeForm',
-		'htmlOptions'=>array('enctype'=>'multipart/form-data')
-	)); ?>
+		'htmlOptions'=>array('enctype'=>'multipart/form-data'),
+	)) ?>
 
 		<fieldset class="form-node">
 
-			<div class="row">
-		        <?php echo $form->label($model,'name') ?>
-		        <span class="uneditable-input"><?php echo CHtml::encode($model->name) ?></span><br />
-				<span class="hint"><?php echo Yii::t('CmsModule.core','Node name cannot be changed.') ?></span>
-		    </div>
-
-			<div class="row">
-				<?php echo $form->label($model,'parentId') ?>
-				<?php echo $form->dropDownList($model,'parentId',$model->getParentOptionTree()) ?>
-				<?php echo $form->error($model,'parentId') ?>
-			</div>
-
-			<div class="row">
-				<?php echo $form->radioButtonList($model,'level',$model->getLevelOptions()) ?>
-				<?php echo $form->error($model,'level') ?>
-			</div>
-
-			<div class="row">
-				<?php echo $form->checkBox($model,'published') ?>
-				<?php echo $form->error($model,'published') ?>
-			</div>
+			<?php echo $form->uneditableRow($model,'name') ?>
+			<?php echo $form->dropDownListRow($model,'parentId',$model->getParentOptionTree()) ?>
+			<?php echo $form->radioButtonListInlineRow($model,'level',$model->getLevelOptions()) ?>
+			<?php echo $form->checkBoxRow($model,'published') ?>
 
 		</fieldset>
 
 		<?php $tabs = array();
-		foreach ($translations as $locale=>$content) {
+		foreach ($translations as $locale => $content) {
 			$language = Yii::app()->cms->languages[$locale];
-			$tab = array(
-				'content'=>$this->renderPartial('_form', array(
-					'model'=>$content,
-					'form'=>$form,
-					'node'=>$model,
-					'language'=>$language,
-				), true),
-			);
-			$tabs[$language] = $tab;
+			$tabs[] = array('label'=>$language, 'content'=>$this->renderPartial('_form',array(
+				'model'=>$content,
+				'form'=>$form,
+				'node'=>$model,
+				'language'=>$language,
+			), true));
 		} ?>
 
-		<?php $this->widget('zii.widgets.jui.CJuiTabs', array(
-			'headerTemplate'=>'<li><a href="{url}">{title}</a></li>',
+		<?php $this->widget('bootstrap.widgets.BootTabbable',array(
 			'tabs'=>$tabs,
 		)); ?>
 
-		<div class="row buttons">
+		<div class="form-actions row">
 			<div class="pull-left">
-				<?php echo CHtml::submitButton(Yii::t('CmsModule.core', 'Save')) ?>
+				<?php echo CHtml::htmlButton(Yii::t('CmsModule.core','Save'),array(
+					'class'=>'btn btn-primary',
+					'type'=>'submit',
+				)) ?>
 			</div>
 			<div class="pull-right">
 				<?php echo CHtml::link(Yii::t('CmsModule.core','Delete'),array('delete','id'=>$model->id),array(
