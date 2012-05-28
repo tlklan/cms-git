@@ -190,20 +190,26 @@ class Cms extends CApplicationComponent
 	/**
 	 * Creates a new node model.
 	 * @param string $name the node name
+	 * @param string $level the node type/level
 	 * @return boolean whether the node was created
 	 * @throws CException if the node could not be created
 	 */
-	public function createNode($name)
+	public function createNode($name, $level = CmsNode::LEVEL_PAGE)
 	{
 		if (!$this->autoCreate)
 			throw new CException(__CLASS__.': Failed to create node. Node creation is disabled.');
 
+		// Validate the node level.
+		if($level !== CmsNode::LEVEL_PAGE && $level !== CmsNode::LEVEL_BLOCK)
+			throw new CException(__CLASS__.': Failed to create node. "level" is incorrectly defined.');
+		
 		// Validate the node name before creation.
 		if (preg_match('/^[\w\d\._-]+$/i', $name) === 0)
 			throw new CException(__CLASS__.': Failed to create node. Name "'.$name.'" is invalid.');
 
 		$node = new CmsNode();
 		$node->name = $name;
+		$node->level = $level;
 		return $node->save(false);
 	}
 	
