@@ -24,8 +24,8 @@
     <legend><?php echo Yii::t('CmsModule.core', 'Attachments') ?></legend>
 
     <?php $this->widget('ext.bootstrap.widgets.BootGridView',array(
-        'id'=>'attachments_'.$model->locale,
-        'dataProvider'=>$model->getAttachments(),
+        'id'=>'attachments_'.$node->id,
+        'dataProvider'=>$node->getAttachments(),
         'template'=>'{items} {pager}',
         'emptyText'=>Yii::t('CmsModule.core', 'No attachments found.'),
         'showTableOnEmpty'=>false,

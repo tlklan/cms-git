@@ -114,6 +114,20 @@ class CmsNode extends CmsActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+	
+	/**
+	 * Returns the attachments associated with this node.
+	 * @return CActiveDataProvider the attachments
+	 */
+	public function getAttachments()
+	{
+		return new CActiveDataProvider('CmsAttachment', array(
+			'criteria' => array(
+				'condition' => 'nodeId=:nodeId',
+				'params' => array(':nodeId' => $this->id),
+			),
+		));
+	}
 
 	/**
 	 * Returns the parent select options formatted as a tree.
