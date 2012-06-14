@@ -36,6 +36,48 @@
 		<?php $this->widget('bootstrap.widgets.BootTabbable',array(
 			'tabs'=>$tabs,
 		)); ?>
+	
+		<fieldset class="form-attachments">
+
+			<legend><?php echo Yii::t('CmsModule.core', 'Attachments') ?></legend>
+
+			<?php $this->widget('ext.bootstrap.widgets.BootGridView',array(
+				'id'=>'attachments_'.$model->id,
+				'dataProvider'=>$model->getAttachments(),
+				'template'=>'{items} {pager}',
+				'emptyText'=>Yii::t('CmsModule.core', 'No attachments found.'),
+				'showTableOnEmpty'=>false,
+				'columns'=>array(
+					array(
+						'name'=>'id',
+						'header'=>'#',
+						'value'=>'$data->id',
+					),
+					array(
+						'header'=>Yii::t('CmsModule.core', 'URL'),
+						'value'=>'$data->resolveName()',
+						'sortable'=>false,
+					),
+					array(
+						'header'=>Yii::t('CmsModule.core', 'Tag'),
+						'value'=>'$data->renderTag()',
+						'sortable'=>false,
+					),
+					array(
+						'class'=>'bootstrap.widgets.BootButtonColumn',
+						'template'=>'{delete}',
+						'buttons'=>array(
+							'delete'=>array(
+								'url'=>'Yii::app()->controller->createUrl("deleteAttachment", array("id"=>$data->id))',
+							),
+						),
+					),
+				),
+			)) ?>
+
+			<?php echo $form->fileFieldRow($model, 'attachment') ?>
+
+		</fieldset>
 
 		<div class="form-actions row">
 			<div class="pull-left">

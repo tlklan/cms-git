@@ -33,6 +33,8 @@ class CmsNode extends CmsActiveRecord
 {
 	const LEVEL_BLOCK = 'block';
 	const LEVEL_PAGE = 'page';
+	
+	public $attachment;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -61,6 +63,7 @@ class CmsNode extends CmsActiveRecord
 			array('id, parentId, published, deleted', 'numerical', 'integerOnly'=>true),
 			array('name, level', 'length', 'max'=>255),
 			array('updated', 'safe'),
+			array('attachment', 'file', 'types'=>Yii::app()->cms->allowedFileTypes, 'maxSize'=>Yii::app()->cms->allowedFileSize, 'allowEmpty'=>true),
 			array('id, created, updated, parentId, name, deleted', 'safe', 'on'=>'search'),
 		);
 	}
@@ -93,6 +96,7 @@ class CmsNode extends CmsActiveRecord
 			'name' => Yii::t('CmsModule.core', 'Name'),
 			'parentId' => Yii::t('CmsModule.core', 'Parent'),
 			'level' => '',
+			'attachment' => Yii::t('CmsModule.core', 'Add a new attachment'),
 		);
 	}
 
@@ -127,6 +131,22 @@ class CmsNode extends CmsActiveRecord
 				'params' => array(':nodeId' => $this->id),
 			),
 		));
+	}
+	
+	/**
+	 * Creates an attachment for this content.
+	 * @param CUploadedFile $file the uploaded file instance
+	 */
+	public function createAttachment($file)
+	{
+		$attachment = new CmsAttachment();
+		$attachment->nodeId = $this->id;
+		$attachment->extension = strtolower($file->getExtensionName());
+		$attachment->filename = $file->getName();
+		$attachment->mimeType = $file->getType();
+		$attachment->byteSize = $file->getSize();
+		$attachment->save();
+		$attachment->saveFile($file);
 	}
 
 	/**

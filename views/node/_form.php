@@ -19,48 +19,6 @@
 
 </fieldset>
 
-<fieldset class="form-attachments">
-
-    <legend><?php echo Yii::t('CmsModule.core', 'Attachments') ?></legend>
-
-    <?php $this->widget('ext.bootstrap.widgets.BootGridView',array(
-        'id'=>'attachments_'.$node->id,
-        'dataProvider'=>$node->getAttachments(),
-        'template'=>'{items} {pager}',
-        'emptyText'=>Yii::t('CmsModule.core', 'No attachments found.'),
-        'showTableOnEmpty'=>false,
-        'columns'=>array(
-			array(
-				'name'=>'id',
-				'header'=>'#',
-				'value'=>'$data->id',
-			),
-			array(
-                'header'=>Yii::t('CmsModule.core', 'URL'),
-                'value'=>'$data->resolveName()',
-				'sortable'=>false,
-            ),
-			array(
-				'header'=>Yii::t('CmsModule.core', 'Tag'),
-				'value'=>'$data->renderTag()',
-				'sortable'=>false,
-			),
-            array(
-                'class'=>'bootstrap.widgets.BootButtonColumn',
-                'template'=>'{delete}',
-                'buttons'=>array(
-                    'delete'=>array(
-                        'url'=>'Yii::app()->controller->createUrl("deleteAttachment", array("id"=>$data->id))',
-                    ),
-                ),
-            ),
-        ),
-    )) ?>
-
-    <?php echo $form->fileFieldRow($model,'['.$model->locale.']attachment') ?>
-
-</fieldset>
-
 <?php if ($node->level === CmsNode::LEVEL_PAGE): ?>
 
 	<fieldset class="form-page-settings">

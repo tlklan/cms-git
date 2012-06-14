@@ -78,18 +78,18 @@ class NodeController extends CmsController
 			foreach ($translations as $language => $content)
 			{
 				$content->attributes = $_POST['CmsContent'][$language];
-				$content->attachment = $upload = CUploadedFile::getInstance($content, '['.$content->locale.']attachment');
-				$valid = $valid && $content->validate();
-
-				if ($upload !== null)
-					$content->createAttachment($upload);
-
 				$translations[$language] = $content;
 			}
 
 			if ($valid)
 			{
 				$model->attributes = $_POST['CmsNode'];
+				$model->attachment = $upload = CUploadedFile::getInstance($model, 'attachment');
+				$valid = $valid && $model->validate();
+
+				if ($upload !== null)
+					$model->createAttachment($upload);
+				
 				$model->save(); // we need to save the node so that the updated column is updated
 
 				foreach ($translations as $content)
