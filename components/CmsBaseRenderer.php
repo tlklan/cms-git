@@ -16,7 +16,7 @@ class CmsBaseRenderer extends CComponent
 		'email'=>'/{{email:([\w\d!#$%&\'*+\\/=?^_`{|}~-]+(?:\.[\w\d!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[\w\d](?:[\w\d-]*[\w\d])?\.)+[\w\d](?:[\w\d-]*[\w\d])?)}}/i',
 		'file'=>'/{{file:([\d]+)(:[^}]+)?}}/i',
 		'image'=>'/{{image:([\d]+)}}/i',
-		'link'=>'/{{(#?[\w\d\._-]+|https?:\/\/[\w\d_-]*(\.[\w\d_-]*)+.*)\|([\w\d\s-]+)}}/i',
+		'link'=>'/{{(#?[\w\d\._-]+|https?:\/\/[\w\d_-]*(\.[\w\d_-]*)+.*)\|([\w\d\s-едц]+)}}/i', // For some reason едц doesn't count as \w on some versions of PHP
 		'node'=>'/{{node:([\w\d\._-]+)}}/i',
 		'url'=>'/{{url:([\w\d\._-]+)}}/i',
 	);
