@@ -152,8 +152,9 @@ class Cms extends CApplicationComponent
 	 */
 	public function loadNode($name)
 	{
-		$node = CmsNode::model()->findByAttributes(array('name'=>$name));
-		return $node;
+		return CmsNode::model()->with('content', 'default')->findByAttributes(array(
+			'name'=>$name
+		));
 	}
 
 	/**
