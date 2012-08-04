@@ -11,7 +11,7 @@
  * Cms base controller class that provides various base functionality.
  * All cms controllers should be extended from this class.
  */
-class CmsController extends CController
+class CmsController extends Controller
 {
 	/**
 	 * @property string the default layout for the controller view
