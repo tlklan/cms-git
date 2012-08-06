@@ -78,9 +78,9 @@ class CmsNode extends CmsActiveRecord
 			'children'=>array(self::HAS_MANY, 'CmsNode', 'parentId'),
 			'translations'=>array(self::HAS_MANY, 'CmsContent', 'nodeId'),
 			'content'=>array(self::HAS_ONE, 'CmsContent', 'nodeId',
-					'condition'=>'content.locale=:contentLocale', 'params'=>array(':contentLocale'=>Yii::app()->language)),
+					'on'=>'content.locale=:contentLocale', 'params'=>array(':contentLocale'=>Yii::app()->language)),
 			'default'=>array(self::HAS_ONE, 'CmsContent', 'nodeId',
-					'condition'=>'default.locale=:defaultLocale', 'params'=>array(':defaultLocale'=>Yii::app()->cms->defaultLanguage)),
+					'on'=>'default.locale=:defaultLocale', 'params'=>array(':defaultLocale'=>Yii::app()->cms->defaultLanguage)),
 		);
 	}
 
