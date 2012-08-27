@@ -226,9 +226,8 @@ class CmsBaseRenderer extends CComponent
 			if ($attachment instanceof CmsAttachment && strpos($attachment->mimeType, 'image') !== false)
 			{
 				$url = $attachment->getUrl();
-				$name = $attachment->resolveName();
-				$pairs[$matches[0][$index]] = CHtml::image($url, $name);
-
+				// TODO: Add a image:id:walloftext pattern so we can manually specify the alt attribute
+				$pairs[$matches[0][$index]] = CHtml::image($url, '');
 			}
 		}
 
