@@ -72,10 +72,11 @@ class CmsActiveRecord extends CActiveRecord
 
 	/**
 	 * Actions to be taken before calling delete.
-	 * @param boolean $soft indicates whether to perform a "soft" delete
+	 * @param boolean $soft indicates whether to perform a "soft" delete. 
+	 * Defaults to true.
 	 * @return boolean whether the record can be deleted
 	 */
-	public function beforeDelete($soft)
+	public function beforeDelete($soft = true)
 	{
 		if (parent::beforeDelete() && $soft && $this->hasAttribute('deleted'))
 		{
