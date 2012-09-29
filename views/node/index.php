@@ -17,7 +17,7 @@
 		'pageSize'=>50,
 	);
 	
-	$this->widget('bootstrap.widgets.BootGridView',array(
+	$this->widget('bootstrap.widgets.TbGridView',array(
 		'dataProvider'=>$dataProvider,
 		'columns'=>array(
 			'id',
@@ -27,7 +27,7 @@
 				'value'=>'$data->parent !== null ? $data->parent->name : ""',
 			),
 			array(
-				'class'=>'BootButtonColumn',
+				'class'=>'TbButtonColumn',
 				'viewButtonUrl'=>'Yii::app()->cms->createUrl($data->name)',
 			),
 		),

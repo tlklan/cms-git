@@ -8,7 +8,7 @@
 
     <h1><?php echo Yii::t('CmsModule.core','Update :name',array(':name'=>ucfirst($model->name))) ?></h1>
 
-	<?php $form = $this->beginWidget('BootActiveForm',array(
+	<?php $form = $this->beginWidget('TbActiveForm',array(
 		'id'=>'cmsUpdateNodeForm',
 		'htmlOptions'=>array('enctype'=>'multipart/form-data'),
 	)) ?>
@@ -33,7 +33,7 @@
 			), true), 'active'=>$locale == Yii::app()->language);
 		} ?>
 		
-		<?php $this->widget('bootstrap.widgets.BootTabbable',array(
+		<?php $this->widget('bootstrap.widgets.TbTabs',array(
 			'tabs'=>$tabs,
 		)); ?>
 	
@@ -41,7 +41,7 @@
 
 			<legend><?php echo Yii::t('CmsModule.core', 'Attachments') ?></legend>
 
-			<?php $this->widget('ext.bootstrap.widgets.BootGridView',array(
+			<?php $this->widget('ext.bootstrap.widgets.TbGridView',array(
 				'id'=>'attachments_'.$model->id,
 				'dataProvider'=>$model->getAttachments(),
 				'template'=>'{items} {pager}',
@@ -64,7 +64,7 @@
 						'sortable'=>false,
 					),
 					array(
-						'class'=>'bootstrap.widgets.BootButtonColumn',
+						'class'=>'bootstrap.widgets.TbButtonColumn',
 						'template'=>'{delete}',
 						'buttons'=>array(
 							'delete'=>array(

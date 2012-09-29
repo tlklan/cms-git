@@ -8,7 +8,7 @@
 
     <h1><?php echo Yii::t('CmsModule.core','Create node') ?></h1>
 
-	<?php $form = $this->beginWidget('BootActiveForm',array(
+	<?php $form = $this->beginWidget('TbActiveForm',array(
 		'id'=>'cmsCreateNodeForm',
 		'htmlOptions'=>array('enctype'=>'multipart/form-data'),
 	)) ?>
