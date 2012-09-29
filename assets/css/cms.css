@@ -93,8 +93,13 @@
 	Bootstrap theme style
 */
 
+.cms-content {
+	padding: 0 20px;
+}
+
 .cms.boot.column2 .cms-content {
 	border-right: 1px solid #ccc;
+	padding-right: 0 !important;
 }
 
 .cms.boot .tags {

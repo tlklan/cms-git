@@ -96,7 +96,6 @@ class Cms extends CApplicationComponent
 	// Register the assets.
 	$assetsUrl = $this->getAssetsUrl();
         Yii::app()->clientScript->registerCssFile($assetsUrl.'/css/cms.css');
-        Yii::app()->clientScript->registerScriptFile($assetsUrl.'/js/es5-shim.js');
     }
 
     /**
@@ -121,7 +120,8 @@ class Cms extends CApplicationComponent
     }
 
 	/**
-	 * Creates the URL to a content page.
+	 * Creates the URL to a content page. If the page node doesn't exist it 
+	 * will be created (providing autoCreate is set to true)
 	 * @param string $name the content name
 	 * @param array $params additional parameters
 	 * @return string the URL
@@ -129,6 +129,18 @@ class Cms extends CApplicationComponent
 	public function createUrl($name, $params=array())
 	{
 		$node = $this->loadNode($name);
+		if($node === null)
+		{
+			if( $this->autoCreate)
+			{
+				$this->createNode($name);
+				$node = $this->loadNode($name);
+				
+				return $node->getUrl($params);
+			}
+			return '';
+		}
+		
 		return $node->getUrl($params);
 	}
 
@@ -139,8 +151,9 @@ class Cms extends CApplicationComponent
 	 */
 	public function loadNode($name)
 	{
-		$node = CmsNode::model()->findByAttributes(array('name'=>$name));
-		return $node;
+		return CmsNode::model()->with('content', 'default')->findByAttributes(array(
+			'name'=>$name
+		));
 	}
 
 	/**
@@ -177,20 +190,26 @@ class Cms extends CApplicationComponent
 	/**
 	 * Creates a new node model.
 	 * @param string $name the node name
+	 * @param string $level the node type/level
 	 * @return boolean whether the node was created
 	 * @throws CException if the node could not be created
 	 */
-	public function createNode($name)
+	public function createNode($name, $level = CmsNode::LEVEL_PAGE)
 	{
 		if (!$this->autoCreate)
 			throw new CException(__CLASS__.': Failed to create node. Node creation is disabled.');
 
+		// Validate the node level.
+		if($level !== CmsNode::LEVEL_PAGE && $level !== CmsNode::LEVEL_BLOCK)
+			throw new CException(__CLASS__.': Failed to create node. "level" is incorrectly defined.');
+		
 		// Validate the node name before creation.
 		if (preg_match('/^[\w\d\._-]+$/i', $name) === 0)
 			throw new CException(__CLASS__.': Failed to create node. Name "'.$name.'" is invalid.');
 
 		$node = new CmsNode();
 		$node->name = $name;
+		$node->level = $level;
 		return $node->save(false);
 	}
 	

@@ -7,10 +7,18 @@
 
 	<h1><?php echo Yii::t('CmsModule.core','Nodes'); ?></h1>
 
-	<p><?php echo CHtml::link(Yii::t('CmsModule.core','Create a new node'),array('node/create'),array('class'=>'btn')) ?></p>
+	<p><?php echo CHtml::link('<i class="icon-file"></i> '.Yii::t('CmsModule.core','Create a new node'),array('node/create'),array('class'=>'btn')) ?></p>
 
-	<?php $this->widget('bootstrap.widgets.BootGridView',array(
-		'dataProvider'=>$model->search(),
+	<?php 
+	
+	// Extend the page size
+	$dataProvider = $model->search();
+	$dataProvider->pagination = array(
+		'pageSize'=>50,
+	);
+	
+	$this->widget('bootstrap.widgets.BootGridView',array(
+		'dataProvider'=>$dataProvider,
 		'columns'=>array(
 			'id',
 			'name',

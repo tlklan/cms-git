@@ -28,7 +28,7 @@ class CmsBlock extends CWidget
         if ($model === null)
         {
             $cms = Yii::app()->cms;
-            $cms->createNode($this->name);
+            $cms->createNode($this->name, CmsNode::LEVEL_BLOCK);
             $model = $cms->loadNode($this->name);
         }
 

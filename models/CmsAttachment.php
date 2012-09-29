@@ -15,7 +15,6 @@ Yii::import('cms.components.CmsActiveRecord');
  * The following are the available columns in this model:
  * @property string $id
  * @property string $created
- * @property string $contentId
  * @property string $extension
  * @property string $filename
  * @property string $mimeType
@@ -50,11 +49,11 @@ class CmsAttachment extends CmsActiveRecord
 	public function rules()
 	{
 		return array(
-			array('contentId, extension, filename, mimeType, byteSize', 'required'),
-			array('contentId, byteSize', 'length', 'max'=>10),
+			array('extension, filename, mimeType, byteSize', 'required'),
+			array('byteSize', 'length', 'max'=>10),
 			array('extension', 'length', 'max'=>50),
 			array('filename, mimeType', 'length', 'max'=>255),
-			array('id, created, contentId, extension, filename, mimeType, byteSize', 'safe', 'on'=>'search'),
+			array('id, created, extension, filename, mimeType, byteSize', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -64,7 +63,7 @@ class CmsAttachment extends CmsActiveRecord
 	public function relations()
 	{
 		return array(
-			'owner'=>array(self::BELONGS_TO, 'CmsContent', 'contentId'),
+			'owner'=>array(self::BELONGS_TO, 'CmsNode', 'nodeId'),
 		);
 	}
 
@@ -76,7 +75,6 @@ class CmsAttachment extends CmsActiveRecord
 		return array(
 			'id' => Yii::t('CmsModule.core', 'Id'),
 			'created' => Yii::t('CmsModule.core', 'Created'),
-			'contentId' => Yii::t('CmsModule.core', 'Content'),
 			'extension' => Yii::t('CmsModule.core', 'Extension'),
 			'filename' => Yii::t('CmsModule.core', 'Filename'),
 			'mimeType' => Yii::t('CmsModule.core', 'Mime Type'),
@@ -94,7 +92,6 @@ class CmsAttachment extends CmsActiveRecord
 
 		$criteria->compare('id',$this->id,true);
 		$criteria->compare('created',$this->created,true);
-		$criteria->compare('contentId',$this->contentId,true);
 		$criteria->compare('extension',$this->extension,true);
 		$criteria->compare('filename',$this->filename,true);
 		$criteria->compare('mimeType',$this->mimeType,true);

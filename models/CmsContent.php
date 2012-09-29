@@ -28,8 +28,6 @@ Yii::import('cms.components.CmsActiveRecord');
  */
 class CmsContent extends CmsActiveRecord
 {
-	public $attachment;
-
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className the class name
@@ -58,7 +56,6 @@ class CmsContent extends CmsActiveRecord
 			array('nodeId', 'length', 'max'=>10),
 			array('locale', 'length', 'max'=>50),
 			array('heading, url, pageTitle, breadcrumb, metaTitle, metaDescription, metaKeywords', 'length', 'max'=>255),
-            array('attachment', 'file', 'types'=>Yii::app()->cms->allowedFileTypes, 'maxSize'=>Yii::app()->cms->allowedFileSize, 'allowEmpty'=>true),
 			array('body', 'safe'),
 			//array('body, css', 'filter', 'filter'=>array($this->getPurifier(), 'purify')),
 			array('id, nodeId, locale, heading, url, pageTitle, breadcrumb, metaTitle, metaDescription, metaKeywords', 'safe', 'on'=>'search'),
@@ -83,7 +80,6 @@ class CmsContent extends CmsActiveRecord
 			'metaTitle' => Yii::t('CmsModule.core', 'Meta Title'),
 			'metaDescription' => Yii::t('CmsModule.core', 'Meta Description'),
 			'metaKeywords' => Yii::t('CmsModule.core', 'Meta Keywords'),
-			'attachment' => Yii::t('CmsModule.core', 'Add a new attachment'),
 		);
 	}
 
@@ -111,36 +107,6 @@ class CmsContent extends CmsActiveRecord
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
-	}
-
-	/**
-	 * Returns the attachments associated with this content.
-	 * @return CActiveDataProvider the attachments
-	 */
-	public function getAttachments()
-	{
-		return new CActiveDataProvider('CmsAttachment', array(
-			'criteria' => array(
-				'condition' => 'contentId=:contentId',
-				'params' => array(':contentId' => $this->id),
-			),
-		));
-	}
-
-	/**
-	 * Creates an attachment for this content.
-	 * @param CUploadedFile $file the uploaded file instance
-	 */
-	public function createAttachment($file)
-	{
-		$attachment = new CmsAttachment();
-		$attachment->contentId = $this->id;
-		$attachment->extension = strtolower($file->getExtensionName());
-		$attachment->filename = $file->getName();
-		$attachment->mimeType = $file->getType();
-		$attachment->byteSize = $file->getSize();
-		$attachment->save();
-		$attachment->saveFile($file);
 	}
 
 	/**
