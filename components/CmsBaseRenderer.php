@@ -16,7 +16,7 @@ class CmsBaseRenderer extends CComponent
 		'email'=>'/{{email:([\w\d!#$%&\'*+\\/=?^_`{|}~-]+(?:\.[\w\d!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[\w\d](?:[\w\d-]*[\w\d])?\.)+[\w\d](?:[\w\d-]*[\w\d])?)}}/i',
 		'file'=>'/{{file:([\d]+)(:[^}]+)?}}/i',
 		'image'=>'/{{image:([\d]+)}}/i',
-		'link'=>'/{{(#?[\w\d\._-]+|https?:\/\/[\w\d_-]*(\.[\w\d_-]*)+.*)\|([\w\d\s-едц]+)}}/i', // For some reason едц doesn't count as \w on some versions of PHP
+		'link'=>'/{{(#?[\w\d\._-]+|https?:\/\/[\w\d_-]*(\.[\w\d_-]*)+.*)\|([\w\d\s-пїЅпїЅпїЅ]+)}}/i', // For some reason пїЅпїЅпїЅ doesn't count as \w on some versions of PHP
 		'node'=>'/{{node:([\w\d\._-]+)}}/i',
 		'url'=>'/{{url:([\w\d\._-]+)}}/i',
 	);
@@ -254,8 +254,17 @@ class CmsBaseRenderer extends CComponent
 			$attachment = CmsAttachment::model()->findByPk($id);
 			if ($attachment instanceof CmsAttachment)
 			{
+				// Use custom name if specified. The first letter must be trimmed
+				if (!empty($matches[2][$index]))
+				{
+					// TODO: fix 'file' pattern so the colon isn't included
+					$name = $matches[2][$index];
+					$name = substr($name, 1, strlen($name) - 1);
+				}
+				else
+					$name = $attachment->resolveName();
+			
 				$url = $attachment->getUrl();
-				$name = $attachment->resolveName();
 				$pairs[$matches[0][$index]] = CHtml::link($name, $url);
 			}
 		}
