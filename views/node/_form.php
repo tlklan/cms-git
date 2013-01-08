@@ -8,6 +8,7 @@
             'model'=>$model,
             'attribute'=>'['.$model->locale.']body',
             'set'=>'html',
+			'htmlOptions'=>array('class'=>'span8', 'style'=>'min-height: 350px;')
         )) ?>
         <?php echo $form->error($model,'['.$model->locale.']body') ?>
 		<div class="tags well">
