@@ -23,10 +23,9 @@ class CachedCmsBlock extends CmsBlock
 	 */
 	public function run()
 	{
-		$cacheDependency = new CdbModifiedDependency('cms_content');
-		$website = WebSite::model()->findCurrent();
+		$cacheDependency = new DbModifiedDependency('cms_content');
 
-		if ($this->beginCache($this->name.'_'.$website->id, array(
+		if ($this->beginCache($this->name.'_'.Yii::app()->language, array(
 			'duration'=>$this->duration,
 			'dependency'=>$cacheDependency,
 			'varyByExpression'=>'Yii::app()->cms->checkAccess()'
