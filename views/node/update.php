@@ -41,7 +41,7 @@
 
 			<legend><?php echo Yii::t('CmsModule.core', 'Attachments') ?></legend>
 
-			<?php $this->widget('ext.bootstrap.widgets.TbGridView',array(
+			<?php $this->widget('bootstrap.widgets.TbGridView',array(
 				'id'=>'attachments_'.$model->id,
 				'dataProvider'=>$model->getAttachments(),
 				'template'=>'{items} {pager}',
