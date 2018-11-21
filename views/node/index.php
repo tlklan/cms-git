@@ -1,5 +1,4 @@
 <?php $this->breadcrumbs = array(
-	Yii::t('CmsModule.core','Cms')=>array('admin/index'),
 	Yii::t('CmsModule.core','Nodes'),
 ) ?>
 

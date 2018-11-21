@@ -12,7 +12,7 @@ class CmsModule extends CWebModule
 	/**
 	 * @var string the name of the default controller
 	 */
-	public $defaultController = 'admin';
+	public $defaultController = 'node';
 
 	/**
 	 * Initializes the module.

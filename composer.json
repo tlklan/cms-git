@@ -1,0 +1,15 @@
+{
+  "name": "tlklan/yii-cms",
+  "description": "Fork of nordcms",
+  "type": "library",
+  "license": "BSD-3-Clause",
+  "require": {},
+  "autoload": {
+    "classmap": [
+      "components",
+      "controllers",
+      "models",
+      "widgets"
+    ]
+  }
+}

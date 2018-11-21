@@ -353,7 +353,6 @@ class CmsNode extends CmsActiveRecord
 			// Do not include the module breadcrumbs for pages.
 			if (Yii::app()->controller->route !== 'cms/node/page')
 			{
-				$breadcrumbs[Yii::t('CmsModule.core','Cms')] = array('admin/index');
 				$breadcrumbs[Yii::t('CmsModule.core','Nodes')] = array('node/index');
 			}
 		}
